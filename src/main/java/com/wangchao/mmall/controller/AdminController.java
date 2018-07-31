@@ -9,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class AdminController {
 
 
-    @RequestMapping("/index.jsp")
+    @RequestMapping("/index.page")
     public ModelAndView index(){
         return new ModelAndView("admin");
     }

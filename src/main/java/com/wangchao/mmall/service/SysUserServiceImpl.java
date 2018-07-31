@@ -1,6 +1,8 @@
 package com.wangchao.mmall.service;
 
 import com.google.common.base.Preconditions;
+import com.wangchao.mmall.beans.PageQuery;
+import com.wangchao.mmall.beans.PageResult;
 import com.wangchao.mmall.dao.SysUserMapper;
 import com.wangchao.mmall.exception.ParamException;
 import com.wangchao.mmall.model.SysUser;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class SysUserServiceImpl implements SysUserService {
@@ -30,9 +33,10 @@ public class SysUserServiceImpl implements SysUserService {
             throw new ParamException("邮箱已被占用");
         }
 
-        String password = PasswordUtil.randomPassword();
+        String id = PasswordUtil.randomPassword();
+        String password="123";
         String encryptedPassword = MD5Util.encrypt(password);
-        SysUser user = SysUser.builder().username(param.getUsername()).telephone(param.getTelephone()).mail(param.getMail())
+        SysUser user = SysUser.builder().id(1).username(param.getUsername()).telephone(param.getTelephone()).mail(param.getMail())
                 .password(encryptedPassword).deptId(param.getDeptId()).status(param.getStatus()).remark(param.getRemark()).build();
         user.setOperator("system");
         user.setOperatorIp("127.0.0.1");
@@ -64,15 +68,27 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Override
     public SysUser findByKeyWord(String keyword) {
-        return null;
+        return sysUserMapper.findByKeyWord(keyword);
+    }
+
+    @Override
+    public PageResult<SysUser> getPageByDeptId(int deptId, PageQuery pageQuery) {
+        BeanValidator.check(pageQuery);
+        int count=sysUserMapper.countByDeptId(deptId);
+        if(count > 0){
+            List<SysUser> list=sysUserMapper.getPageByDeptId(deptId, pageQuery);
+            return PageResult.<SysUser>builder().total(count).data(list).build();
+        }
+        return PageResult.<SysUser>builder().build();
+
     }
 
 
     public boolean checkEmailExist(String email,Integer userId){
-        return false;
+        return sysUserMapper.countByEmail(email,userId)>0;
     }
 
     public boolean checkTelephoneExist(String telephone,Integer userId){
-        return false;
+        return sysUserMapper.countByTelphone(telephone, userId)>0;
     }
 }

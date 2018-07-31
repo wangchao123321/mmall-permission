@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Controller
-@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -48,11 +47,18 @@ public class UserController {
             }
         }
 
-        request.setAttribute("errorMsg",errorMsg);
+        request.setAttribute("error",errorMsg);
         request.setAttribute("username",username);
         if(StringUtils.isNotBlank(ret)){
             request.setAttribute("ret",ret);
         }
-        request.getRequestDispatcher("signup.jsp").forward(request,response);
+        request.getRequestDispatcher("signin.jsp").forward(request,response);
+    }
+
+
+    @RequestMapping("/loginOut.page")
+    public void loginOut(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        request.getSession().invalidate();
+        response.sendRedirect("signin.jsp");
     }
 }

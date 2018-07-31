@@ -1,6 +1,7 @@
 package com.wangchao.mmall.service;
 
 import com.google.common.base.Preconditions;
+import com.wangchao.mmall.common.RequestHolder;
 import com.wangchao.mmall.dao.SysDeptMapper;
 import com.wangchao.mmall.exception.ParamException;
 import com.wangchao.mmall.model.SysDept;
@@ -32,10 +33,13 @@ public class SysDeptServiceImpl implements SysDeptService {
         SysDept dept=SysDept.builder().name(param.getName()).parentId(param.getParentId())
                 .seq(param.getSeq()).remark(param.getRemark()).build();
         dept.setLevel(LevelUtil.calculateLevel(getLevel(param.getParentId()),param.getParentId()));
-        dept.setOperator("system");
+        dept.setOperator(RequestHolder.getCurrentUser().getUsername());
         dept.setOperatorIp("127.0.0.1");
         dept.setOperateTime(new Date());
+
         sysDeptMapper.insertSelective(dept);
+
+
     }
 
     @Override

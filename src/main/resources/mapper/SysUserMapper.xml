@@ -167,4 +167,32 @@
     FROM sys_user WHERE telephone=#{keyword}
     or mail=#{keyword}
   </select>
+
+  <select id="countByEmail" resultType="int" parameterType="map">
+    SELECT count(1)
+    FROM sys_user WHERE mail=#{email}
+    <if test="id!=null">
+      AND id != #{id}
+    </if>
+  </select>
+
+  <select id="countByTelphone" resultType="int" parameterType="map">
+    SELECT count(1)
+    FROM sys_user WHERE telephone=#{telephone}
+    <if test="id!=null">
+      AND id != #{id}
+    </if>
+  </select>
+
+  <select id="countByDeptId" parameterType="int" resultType="int">
+    SELECT count(1)
+    FROM sys_user WHERE dept_id=#{deptId}
+  </select>
+
+  <select id="getPageByDeptId" parameterType="map" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_user WHERE dept_id=#{deptId}
+    ORDER BY username ASC
+    LIMIT #{page.offset},#{page.pageSize}
+  </select>
 </mapper>

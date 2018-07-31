@@ -26,6 +26,7 @@ public class HttpInterceptor extends HandlerInterceptorAdapter {
         String url=request.getRequestURI().toString();
         Map requestParameterMap = request.getParameterMap();
         log.info("finish url:{},param:{}",url, JsonMapper.objct2String(requestParameterMap));
+        removeThreadLocal();
     }
 
     @Override
@@ -33,5 +34,10 @@ public class HttpInterceptor extends HandlerInterceptorAdapter {
         String url=request.getRequestURI().toString();
         Map requestParameterMap = request.getParameterMap();
         log.info("exception url:{},param:{}",url, JsonMapper.objct2String(requestParameterMap));
+        removeThreadLocal();
+    }
+
+    public void removeThreadLocal(){
+        RequestHolder.remove();
     }
 }
