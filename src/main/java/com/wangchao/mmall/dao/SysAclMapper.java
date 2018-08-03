@@ -1,6 +1,10 @@
 package com.wangchao.mmall.dao;
 
+import com.wangchao.mmall.beans.PageQuery;
 import com.wangchao.mmall.model.SysAcl;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface SysAclMapper {
     int deleteByPrimaryKey(Integer id);
@@ -14,4 +18,14 @@ public interface SysAclMapper {
     int updateByPrimaryKeySelective(SysAcl record);
 
     int updateByPrimaryKey(SysAcl record);
+
+    int countByAclModuleId(@Param("aclModuleId") int aclModuleId);
+
+    List<SysAcl> getPageByAclModuleId(@Param("aclModuleId") int aclModuleId, @Param("pageQuery")PageQuery pageQuery);
+
+    int countByNameAndAclModuleId(@Param("aclModuleId") int aclModuleId,@Param("name") String name,@Param("id") Integer id);
+
+    List<SysAcl> getAll();
+
+    List<SysAcl> getByIdList(@Param("idList") List<Integer> idList);
 }
