@@ -35,7 +35,7 @@
       #{operator,jdbcType=VARCHAR}, #{operateTime,jdbcType=TIMESTAMP}, #{operatorIp,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysDept" >
+  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysDept" keyProperty="id" useGeneratedKeys="true">
     insert into sys_dept
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -169,5 +169,9 @@
     <if test="id != null">
       AND id != #{id}
     </if>
+  </select>
+
+  <select id="countByParentId" parameterType="int" resultType="map">
+    SELECT count(1) FROM sys_dept WHERE parent_id = #{deptId}
   </select>
 </mapper>

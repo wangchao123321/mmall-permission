@@ -2,6 +2,7 @@ package com.wangchao.mmall.service;
 
 import com.google.common.base.Preconditions;
 import com.wangchao.mmall.common.RequestHolder;
+import com.wangchao.mmall.dao.SysAclMapper;
 import com.wangchao.mmall.dao.SysAclModuleMapper;
 import com.wangchao.mmall.exception.ParamException;
 import com.wangchao.mmall.model.SysAclModule;
@@ -24,6 +25,12 @@ public class SysAclModuleServiceImpl implements SysAclModuleService {
     @Autowired
     private SysAclModuleMapper sysAclModuleMapper;
 
+    @Autowired
+    private SysAclMapper sysAclMapper;
+
+    @Autowired
+    private SysLogService sysLogService;
+
     @Override
     public void save(AclModuleParam param) {
         BeanValidator.check(param);
@@ -37,6 +44,7 @@ public class SysAclModuleServiceImpl implements SysAclModuleService {
         after.setOperatorIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         after.setOperateTime(new Date());
         sysAclModuleMapper.insertSelective(after);
+        sysLogService.saveAclModuleLog(null,after);
     }
 
     @Override
@@ -56,6 +64,20 @@ public class SysAclModuleServiceImpl implements SysAclModuleService {
         after.setOperateTime(new Date());
 
         updateWithChild(before,after);
+        sysLogService.saveAclModuleLog(before,after);
+    }
+
+    @Override
+    public void delete(int aclModuleId) {
+        SysAclModule aclModule=sysAclModuleMapper.selectByPrimaryKey(aclModuleId);
+        Preconditions.checkNotNull(aclModule,"待删除的权限模块不存在,无法删除");
+        if(sysAclModuleMapper.countByParentId(aclModule.getId()) > 0){
+            throw new ParamException("当前模块下面有子部门，无法删除");
+        }
+        if(sysAclMapper.countByAclModuleId(aclModule.getId()) >0){
+            throw new ParamException("当前模块下面有用户，无法删除");
+        }
+        sysAclModuleMapper.deleteByPrimaryKey(aclModuleId);
     }
 
     @Transactional

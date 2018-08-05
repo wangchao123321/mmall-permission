@@ -23,6 +23,8 @@ public class SysAclServiceImpl implements SysAclService{
     @Autowired
     private SysAclMapper sysAclMapper;
 
+    @Autowired
+    private SysLogService sysLogService;
 
     @Override
     public void save(AclParam param) {
@@ -37,7 +39,7 @@ public class SysAclServiceImpl implements SysAclService{
         acl.setOperatorTime(new Date());
         acl.setOperatorIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         sysAclMapper.insertSelective(acl);
-//        sysLogService.saveAclLog(null, acl);
+        sysLogService.saveAclLog(null, acl);
     }
 
     @Override
@@ -56,7 +58,7 @@ public class SysAclServiceImpl implements SysAclService{
         after.setOperatorIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
 
         sysAclMapper.updateByPrimaryKeySelective(after);
-//        sysLogService.saveAclLog(before, after);
+        sysLogService.saveAclLog(before, after);
     }
 
     @Override

@@ -9,4 +9,5 @@ public interface SysDeptService {
 
     void update(DeptParam param);
 
+    void delete(int deptId);
 }

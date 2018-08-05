@@ -30,7 +30,7 @@
       #{operator,jdbcType=VARCHAR}, #{operatorTime,jdbcType=TIMESTAMP}, #{operatorIp,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysRoleAcl" >
+  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysRoleAcl" keyProperty="id" useGeneratedKeys="true">
     insert into sys_role_acl
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -103,4 +103,34 @@
       operator_ip = #{operatorIp,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="getAclIdListByRoleIdList" parameterType="map" resultType="int">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM sys_role_acl WHERE role_id in
+    <foreach collection="roleIdList" item="roleId" open="(" close=")" separator=",">
+      #{roldId}
+    </foreach>
+  </select>
+
+  <delete id="deleteByRoleId" parameterType="map">
+    DELETE FROM sys_role_acl WHERE role_id #{roleId}
+  </delete>
+
+  <insert id="batchInsert" parameterType="map">
+    insert into sys_role_acl (id, role_id, acl_id,
+      operator, operator_time, operator_ip
+      )
+    values 
+    <foreach collection="roleAclList" separator="," item="roleAcl">
+      (#{roleAcl.roleId}, #{roleAcl.aclId},
+      #{roleAcl.operator}, #{roleAcl.operatorTime}, #{roleAcl.operatorIp}
+      )
+    </foreach>
+  </insert>
+
+  <select id="getRoleIdListByAclId" parameterType="int" resultType="int">
+    select role_id from sys_role_acl
+    WHERE acl_id=#{aclId}
+  </select>
 </mapper>

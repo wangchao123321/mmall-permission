@@ -32,7 +32,7 @@
       #{status,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{operator,jdbcType=VARCHAR}, 
       #{operatorTime,jdbcType=TIMESTAMP}, #{operatorIp,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysRole" >
+  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysRole" keyProperty="id" useGeneratedKeys="true">
     insert into sys_role
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -136,5 +136,14 @@
     <if test="id != null">
       AND id !=#{id}
     </if>
+  </select>
+
+  <select id="getByIdList" parameterType="map" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    from sys_role
+    WHERE id IN
+    <foreach collection="idList" separator="," open="(" close=")" item="id">
+      #{id}
+    </foreach>
   </select>
 </mapper>

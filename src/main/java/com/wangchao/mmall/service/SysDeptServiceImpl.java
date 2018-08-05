@@ -3,12 +3,14 @@ package com.wangchao.mmall.service;
 import com.google.common.base.Preconditions;
 import com.wangchao.mmall.common.RequestHolder;
 import com.wangchao.mmall.dao.SysDeptMapper;
+import com.wangchao.mmall.dao.SysUserMapper;
 import com.wangchao.mmall.exception.ParamException;
 import com.wangchao.mmall.model.SysDept;
 import com.wangchao.mmall.param.DeptParam;
 import com.wangchao.mmall.util.BeanValidator;
 import com.wangchao.mmall.util.LevelUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,12 @@ public class SysDeptServiceImpl implements SysDeptService {
 
     @Resource
     private SysDeptMapper sysDeptMapper;
+
+    @Autowired
+    private SysUserMapper sysUserMapper;
+
+    @Autowired
+    private SysLogService sysLogService;
 
 
     @Override
@@ -38,7 +46,7 @@ public class SysDeptServiceImpl implements SysDeptService {
         dept.setOperateTime(new Date());
 
         sysDeptMapper.insertSelective(dept);
-
+        sysLogService.saveDeptLog(null,dept);
 
     }
 
@@ -62,6 +70,20 @@ public class SysDeptServiceImpl implements SysDeptService {
         after.setOperateTime(new Date());
 
         updateWithChild(before,after);
+        sysLogService.saveDeptLog(before,after);
+    }
+
+    @Override
+    public void delete(int deptId) {
+        SysDept dept=sysDeptMapper.selectByPrimaryKey(deptId);
+        Preconditions.checkNotNull(dept,"待删除的部门不存在，无法删除");
+        if(sysDeptMapper.countByParentId(dept.getId()) > 0){
+            throw new ParamException("当前部门下面有子部门，无法删除");
+        }
+        if(sysUserMapper.countByDeptId(dept.getId()) >0){
+            throw new ParamException("当前部门下面有用户，无法删除");
+        }
+        sysDeptMapper.deleteByPrimaryKey(deptId);
     }
 
     @Transactional

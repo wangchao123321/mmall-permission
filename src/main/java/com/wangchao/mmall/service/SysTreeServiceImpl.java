@@ -37,6 +37,19 @@ public class SysTreeServiceImpl implements SysTreeService {
     @Autowired
     private SysAclMapper sysAclMapper;
 
+    @Override
+    public List<AclModuleLevelDto> userAclTree(int userId){
+        List<SysAcl> userAclList=sysCoreService.getUserAclList(userId);
+        List<AclDto> aclDtoList=Lists.newArrayList();
+        for (SysAcl sysAcl : userAclList) {
+            AclDto dto=AclDto.adapt(sysAcl);
+            dto.setChecked(true);
+            dto.setHasAcl(true);
+            aclDtoList.add(dto);
+        }
+        return aclListToTree(aclDtoList);
+    }
+
     public List<AclModuleLevelDto> aclModuleTree(){
         List<SysAclModule> sysAclModules=sysAclModuleMapper.getAllAclModule();
         List<AclModuleLevelDto> dtoList=Lists.newArrayList();
@@ -59,9 +72,8 @@ public class SysTreeServiceImpl implements SysTreeService {
         Set<Integer> roleAclIdSet=roleAclList.stream().map(sysAcl -> sysAcl.getId()).collect(Collectors.toSet());
 
         List<SysAcl> allAclList=sysAclMapper.getAll();
-        Set<SysAcl> aclSet=new HashSet<>(allAclList);
 
-        for (SysAcl sysAcl : aclSet) {
+        for (SysAcl sysAcl : allAclList) {
             AclDto dto=AclDto.adapt(sysAcl);
             if(userAclIdSet.contains(sysAcl.getId())){
                 dto.setHasAcl(true);

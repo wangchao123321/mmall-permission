@@ -22,6 +22,9 @@ public class SysUserServiceImpl implements SysUserService {
     @Autowired
     private SysUserMapper sysUserMapper;
 
+    @Autowired
+    private SysLogService sysLogService;
+
     @Override
     public void save(UserParam param) {
         BeanValidator.check(param);
@@ -43,6 +46,7 @@ public class SysUserServiceImpl implements SysUserService {
         user.setOperatorTime(new Date());
 
         sysUserMapper.insertSelective(user);
+        sysLogService.saveUserLog(null,user);
     }
 
     @Override
@@ -64,6 +68,7 @@ public class SysUserServiceImpl implements SysUserService {
         after.setOperatorTime(new Date());
 
         sysUserMapper.updateByPrimaryKeySelective(after);
+        sysLogService.saveUserLog(before,after);
     }
 
     @Override
@@ -81,6 +86,11 @@ public class SysUserServiceImpl implements SysUserService {
         }
         return PageResult.<SysUser>builder().build();
 
+    }
+
+    @Override
+    public List<SysUser> getAll() {
+        return sysUserMapper.getAll();
     }
 
 

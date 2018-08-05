@@ -38,7 +38,7 @@
       #{status,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{operator,jdbcType=VARCHAR}, 
       #{operatorTime,jdbcType=TIMESTAMP}, #{operatorIp,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysUser" >
+  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysUser" keyProperty="id" useGeneratedKeys="true">
     insert into sys_user
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -194,5 +194,19 @@
     FROM sys_user WHERE dept_id=#{deptId}
     ORDER BY username ASC
     LIMIT #{page.offset},#{page.pageSize}
+  </select>
+  
+  <select id="getByIdList" parameterType="map" resultType="int">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_user
+    WHERE  id IN
+    <foreach collection="idList" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+  </select>
+
+  <select id="getAll" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM sys_user
   </select>
 </mapper>

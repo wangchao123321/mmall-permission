@@ -42,7 +42,7 @@
       #{status,jdbcType=INTEGER}, #{oldValue,jdbcType=LONGVARCHAR}, #{newValue,jdbcType=LONGVARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysLogWithBLOBs" >
+  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysLogWithBLOBs" keyProperty="id" useGeneratedKeys="true">
     insert into sys_log
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -155,4 +155,44 @@
       status = #{status,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="countBySearchDto" parameterType="map" resultType="int">
+    select count(1)
+    from sys_log
+    <include refid="queryConditions"/>
+  </select>
+
+  <select id="getPageListBySearchDto" parameterType="map" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from sys_log
+    <include refid="queryConditions"/>
+    ORDER  BY operate_time DESC
+    limit #{page.offset},#{page.pageSize}
+  </select>
+  
+  <sql id="queryConditions">
+    <where>
+      <if test="dto.type != null">
+        AND type=#{dto.type}
+      </if>
+      <if test="dto.beforeSeq != null and dto.beforeSeq != ''">
+        AND old_value like #{dto.beforeSeq}
+      </if>
+      <if test="dto.afterSeq != null and dto.afterSeq != ''">
+        AND new_value like #{dto.afterSeq}
+      </if>
+      <if test="dto.operator != null and dto.operator != ''">
+        AND operator like #{dto.operator}
+      </if>
+      <if test="dto.fromTime != null">
+        AND operate_time &gt;= #{dto.fromTime}
+      </if>
+      <if test="dto.toTime != null">
+        AND operate_time &lt;= #{dto.toTime}
+      </if>
+    </where>
+  </sql>
 </mapper>

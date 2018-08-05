@@ -26,4 +26,6 @@ public interface SysAclModuleMapper {
     void batchUpdateLevel(@Param("aclModules") List<SysAclModule> aclModules);
 
     List<SysAclModule> getAllAclModule();
+
+    int countByParentId(@Param("aclModuleId") int aclModuleId);
 }

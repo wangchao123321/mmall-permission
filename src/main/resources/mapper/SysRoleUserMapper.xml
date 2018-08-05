@@ -30,7 +30,7 @@
       #{operator,jdbcType=VARCHAR}, #{operatorTime,jdbcType=TIMESTAMP}, #{operatorIp,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysRoleUser" >
+  <insert id="insertSelective" parameterType="com.wangchao.mmall.model.SysRoleUser" keyProperty="id" useGeneratedKeys="true">
     insert into sys_role_user
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -103,4 +103,37 @@
       operator_ip = #{operatorIp,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="getRoleIdListByUserId" parameterType="map" resultType="int">
+    SELECT role_id
+    FROM sys_role_user
+    WHERE user_id=#{userId}
+  </select>
+  
+  <select id="getUserIdListByRoleId" parameterType="map" resultType="int">
+    SELECT user_id
+    FROM sys_role_user
+    WHERE role_id=#{roleId}
+  </select>
+
+  <delete id="deleteByRoleId" parameterType="int">
+    DELETE FROM sys_role_user WHERE role_id=#{roleId}
+  </delete>
+
+  <insert id="batchInsert" parameterType="map">
+    insert into sys_role_user (role_id, user_id,operator, operator_time, operator_ip)
+    values
+    <foreach collection="roleUserList" item="roleUser" separator=",">
+    (#{roleUser.roleId}, #{roleUser.userId},#{roleUser.operator}, #{roleUser.operatorTime}, #{roleUser.operatorIp})
+    </foreach>
+  </insert>
+  
+  <select id="getUserIdListByRoleIdList" parameterType="map" resultType="int">
+    SELECT user_id
+    FROM sys_role_user
+    WHERE role_id IN
+    <foreach collection="roleIdList" item="roleId" close=")" open="(" separator=",">
+      #{roleId}
+    </foreach>
+  </select>
 </mapper>
