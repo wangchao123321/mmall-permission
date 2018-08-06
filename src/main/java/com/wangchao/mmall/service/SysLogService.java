@@ -19,9 +19,9 @@ public interface SysLogService {
 
     public void saveRoleLog(SysRole before, SysRole after);
 
-    public void saveRoleAclLog(int roleId, List<Integer> before, List<Integer> after);
 
-    public void saveRoleUserLog(int roleId, List<Integer> before, List<Integer> after);
+
+
 
     PageResult<SysLogWithBLOBs> searchPageList(SearchLogParam param, PageQuery pageQuery);
 

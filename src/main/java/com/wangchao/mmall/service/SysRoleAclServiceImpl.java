@@ -2,10 +2,14 @@ package com.wangchao.mmall.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.wangchao.mmall.beans.LogType;
 import com.wangchao.mmall.common.RequestHolder;
+import com.wangchao.mmall.dao.SysLogMapper;
 import com.wangchao.mmall.dao.SysRoleAclMapper;
+import com.wangchao.mmall.model.SysLogWithBLOBs;
 import com.wangchao.mmall.model.SysRoleAcl;
 import com.wangchao.mmall.util.IpUtil;
+import com.wangchao.mmall.util.JsonMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,7 @@ public class SysRoleAclServiceImpl implements SysRoleAclService{
     private SysRoleAclMapper sysRoleAclMapper;
 
     @Autowired
-    private SysLogService sysLogService;
+    private SysLogMapper sysLogMapper;
 
 
     @Override
@@ -37,7 +41,7 @@ public class SysRoleAclServiceImpl implements SysRoleAclService{
             }
         }
         updateRoleAcls(roleId,aclIdList);
-        sysLogService.saveRoleAclLog(roleId,originAclIdList,aclIdList);
+        saveRoleAclLog(roleId,originAclIdList,aclIdList);
     }
 
     @Transactional
@@ -54,5 +58,19 @@ public class SysRoleAclServiceImpl implements SysRoleAclService{
             roleAclList.add(roleAcl);
         }
         sysRoleAclMapper.batchInsert(roleAclList);
+    }
+
+    @Override
+    public void saveRoleAclLog(int roleId, List<Integer> before, List<Integer> after) {
+        SysLogWithBLOBs sysLog = new SysLogWithBLOBs();
+        sysLog.setType(LogType.TYPE_ROLE_ACL);
+        sysLog.setTargetId(roleId);
+        sysLog.setOldValue(before == null ? "" : JsonMapper.objct2String(before));
+        sysLog.setNewValue(after == null ? "" : JsonMapper.objct2String(after));
+        sysLog.setOperator(RequestHolder.getCurrentUser().getUsername());
+        sysLog.setOperator(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
+        sysLog.setOperatorTime(new Date());
+        sysLog.setStatus(1);
+        sysLogMapper.insertSelective(sysLog);
     }
 }

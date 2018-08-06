@@ -25,7 +25,8 @@ public class SysLogController {
     @RequestMapping("/recover.json")
     @ResponseBody
     public JsonData recover(@RequestParam("id") int id){
-        return JsonData.success(sysLogService.searchPageList(param,pageQuery));
+        sysLogService.recover(id);
+        return JsonData.success();
     }
 
     @RequestMapping("/log.page")

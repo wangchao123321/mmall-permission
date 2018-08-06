@@ -43,6 +43,12 @@ public class SysLogServiceImpl implements SysLogService {
     @Autowired
     private SysRoleMapper sysRoleMapper;
 
+    @Autowired
+    private SysRoleAclService sysRoleAclService;
+
+    @Autowired
+    private SysRoleUserService sysRoleUserService;
+
     @Override
     public void recover(int id) {
         SysLogWithBLOBs syslog = sysLogMapper.selectByPrimaryKey(id);
@@ -104,8 +110,16 @@ public class SysLogServiceImpl implements SysLogService {
                 saveRoleLog(beforeRole,afterRole);
                 break;
             case LogType.TYPE_ROLE_ACL:
+                SysRole aclRole=sysRoleMapper.selectByPrimaryKey(syslog.getTargetId());
+                Preconditions.checkNotNull(aclRole, "角色不存在");
+                sysRoleAclService.changeRoleAcls(syslog.getTargetId(),JsonMapper.String2Obj(syslog.getOldValue(), new TypeReference<List<Integer>>() {
+                }));
                 break;
             case LogType.TYPE_ROLE_USER:
+                SysRole userRole=sysRoleMapper.selectByPrimaryKey(syslog.getTargetId());
+                Preconditions.checkNotNull(userRole, "角色不存在");
+                sysRoleUserService.changeRoleUsers(syslog.getTargetId(),JsonMapper.String2Obj(syslog.getOldValue(), new TypeReference<List<Integer>>() {
+                }));
                 break;
             default:
 
@@ -182,33 +196,7 @@ public class SysLogServiceImpl implements SysLogService {
         sysLogMapper.insertSelective(sysLog);
     }
 
-    @Override
-    public void saveRoleAclLog(int roleId, List<Integer> before, List<Integer> after) {
-        SysLogWithBLOBs sysLog = new SysLogWithBLOBs();
-        sysLog.setType(LogType.TYPE_ROLE_ACL);
-        sysLog.setTargetId(roleId);
-        sysLog.setOldValue(before == null ? "" : JsonMapper.objct2String(before));
-        sysLog.setNewValue(after == null ? "" : JsonMapper.objct2String(after));
-        sysLog.setOperator(RequestHolder.getCurrentUser().getUsername());
-        sysLog.setOperator(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
-        sysLog.setOperatorTime(new Date());
-        sysLog.setStatus(1);
-        sysLogMapper.insertSelective(sysLog);
-    }
 
-    @Override
-    public void saveRoleUserLog(int roleId, List<Integer> before, List<Integer> after) {
-        SysLogWithBLOBs sysLog = new SysLogWithBLOBs();
-        sysLog.setType(LogType.TYPE_ROLE_USER);
-        sysLog.setTargetId(roleId);
-        sysLog.setOldValue(before == null ? "" : JsonMapper.objct2String(before));
-        sysLog.setNewValue(after == null ? "" : JsonMapper.objct2String(after));
-        sysLog.setOperator(RequestHolder.getCurrentUser().getUsername());
-        sysLog.setOperator(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
-        sysLog.setOperatorTime(new Date());
-        sysLog.setStatus(1);
-        sysLogMapper.insertSelective(sysLog);
-    }
 
     @Override
     public PageResult<SysLogWithBLOBs> searchPageList(SearchLogParam param, PageQuery pageQuery) {
